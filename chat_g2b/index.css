@@ -72,3 +72,27 @@
     margin-right:5px;
     max-width:70%;
 }
+
+.sendmsg{
+    background:yellow;
+    height:70px;
+    display:flex;
+    align-items:center;
+}
+
+.form-control{
+    width:100%;
+    padding:10px;
+    border:1px solid #e5e5e5;
+    border-radius:5px;
+}
+
+.btn-primary{
+    padding:10px 20px;
+    border:none;
+    cursor:pointer;
+    background:#0084ff;
+    color:#fff;
+    border-radius:5px;
+    margin-left:10px
+}
