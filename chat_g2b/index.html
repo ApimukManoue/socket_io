@@ -11,29 +11,111 @@
 
       <div class="user-detail">
         <img class="user" src="https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="User Image">
-        <h4>Apimuk</h4>
+        <h4 id="showUsername">Apimuk</h4>
       </div>
 
-      <div class="renderchat">
+      <div id="render" class="renderchat">
         <!-- mock up ฝั่งซ้าย -->
-        <div class="chat-incomming">
+        <!-- <div class="chat-incomming">
           <img style="width: 30px;height: 30px;" class="user" src="https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="User Image">
           <span>Hello World</span>
         </div>
         <div class="chat-incomming">
           <img style="width: 30px;height: 30px;" class="user" src="https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="User Image">
           <span>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Molestias accusantium officia deserunt excepturi fugiat perspiciatis commodi consequatur obcaecati quod, dolorem magnam ad modi alias quos quaerat! Officiis asperiores debitis sunt!</span>
-        </div>
+        </div> -->
         <!-- mock up ฝั่งขวา -->
-        <div class="chat-outcomming">
+        <!-- <div class="chat-outcomming">
           <span>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Molestias accusantium officia deserunt excepturi fugiat perspiciatis commodi consequatur obcaecati quod, dolorem magnam ad modi alias quos quaerat! Officiis asperiores debitis sunt!</span>
           <img style="width: 30px;height: 30px;" class="user" src="https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="User Image">
-        </div>
+        </div> -->
       </div>
       <div class="sendmsg">
-        <input type="text" class="form-control" placeholder="Massage">
-        <button class="btn-primary">Send</button>
+        <input id="txtMsg" type="text" class="form-control" placeholder="Massage">
+        <button id="btnSend" class="btn-primary">Send</button>
       </div>
-    </div>    
+    </div>   
+    
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { getDatabase,set,push,ref,onValue } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+
+  // Connection string
+    const firebaseConfig = {
+      apiKey: "AIzaSyA2jaVw0pjaea30vW72F1HpVHFOWO-IqUE",
+      authDomain: "realtime-chat-9a4b8.firebaseapp.com",
+      databaseURL:"https://realtime-chat-9a4b8-default-rtdb.asia-southeast1.firebasedatabase.app/",
+      projectId: "realtime-chat-9a4b8",
+      storageBucket: "realtime-chat-9a4b8.firebasestorage.app",
+      messagingSenderId: "752378859226",
+      appId: "1:752378859226:web:3a13966ba3fb9437d5dfe3",
+      measurementId: "G-M61BB2T607"
+    };
+
+  // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+  // รับค่าชื่อผู้ใช้จากการกรอก 
+    const user = window.prompt('user name');
+    console.log(user);
+    document.getElementById('showUsername').innerHTML=user;
+
+  // ส่งและยัดข้อมูลเข้า Firebase เมื่อคลิ๊กปุ่ม Send
+    const btnSend = document.getElementById('btnSend');
+    const txtMsg = document.getElementById('txtMsg');
+    btnSend.addEventListener('click',()=>{
+      // push data
+        set(
+          push(ref(db,'room2')),
+          {
+            username:user,
+            msg:txtMsg.value
+          })
+          txtMsg.value='';
+    });
+
+      // emit all 
+    onValue(ref(db,'room2'),(snapshot)=>{
+      const data=snapshot.val();
+      // console.log(data);
+      var html='';
+
+      snapshot.forEach((eachsnapshot)=>{
+         var key = eachsnapshot.key;
+         var val = eachsnapshot.val();
+      // console.log('key'+key+':  val'+val);
+         if(data[key].username != user){
+          html += `
+            <div class="chat-incomming">
+               <img style="width: 30px;height: 30px;" class="user" src="https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="User Image">
+               <span>${data[key].msg}</span>
+            </div>
+          `
+         }else{
+          html += `
+            <div class="chat-outcomming">
+               <span>${data[key].msg}</span>
+              <img style="width: 30px;height: 30px;" class="user" src="https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="User Image">
+            </div>
+          `
+         }
+         document.getElementById('render').innerHTML=html;
+      }
+      );
+
+    });  
+
+     
+
+
+
+
+
+
+  
+</script>
+
 </body>
 </html>
